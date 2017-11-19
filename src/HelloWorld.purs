@@ -1,8 +1,13 @@
 module HelloWorld where
 
-import Control.Monad.Eff
-import Prelude
-import Data.Generic.Rep (class Generic)
+import Prelude (Unit
+               , (-)
+               , (*)
+               , (<>)
+               , show
+               )
+import Control.Monad.Eff (Eff, kind Effect)
+import Data.Generic (class Generic)
 
 foreign import data RESPONSE :: Effect
 
@@ -13,7 +18,7 @@ newtype ReqBody = ReqBody
   , text :: String
   }
 
-derive instance genericReqData :: Generic ReqBody _
+derive instance genericReqData :: Generic ReqBody
 
 handle :: forall t4. ReqBody -> Eff (response :: RESPONSE | t4) Unit
 handle (ReqBody body) = send 200 msg
