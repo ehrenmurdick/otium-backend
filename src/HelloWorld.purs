@@ -1,16 +1,26 @@
 module HelloWorld where
 
-import Prelude
 import Control.Monad.Eff
+import Prelude
+import Data.Generic.Rep (class Generic)
 
-foreign import data Response :: Type
 foreign import data RESPONSE :: Effect
 
+foreign import send :: forall eff. Int -> String -> Eff (response :: RESPONSE | eff) Unit
 
-foreign import send :: forall eff. Response -> Int -> String -> Eff (response :: RESPONSE | eff) Unit
+newtype ReqBody = ReqBody
+  { number :: Int
+  , text :: String
+  }
 
-handle :: forall t4. Response -> Eff (response :: RESPONSE | t4) Unit
-handle r = send r 200 (show (factorial 5) <> "\n")
+derive instance genericReqData :: Generic ReqBody _
+
+handle :: forall t4. ReqBody -> Eff (response :: RESPONSE | t4) Unit
+handle (ReqBody body) = send 200 msg
+  where
+    n = factorial body.number
+    ns = show n
+    msg = ns <> " " <> body.text
 
 factorial :: Int -> Int
 factorial 0 = 1

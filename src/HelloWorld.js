@@ -1,7 +1,7 @@
-exports.send = function(res) {
-  return function(code) {
-    return function(msg) {
-      return function() {
+exports.send = function(code) {
+  return function(msg) {
+    return function() {
+      return function(res) {
         res.status(code).send(msg);
       }
     }

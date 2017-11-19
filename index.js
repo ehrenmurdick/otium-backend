@@ -1,5 +1,6 @@
 var HelloWorld = require('./output/HelloWorld');
 
 exports.helloWorld = (req, res) => {
-  HelloWorld.handle(res)();
+  var effect = HelloWorld.handle(req.body)();
+  effect(res);
 }
