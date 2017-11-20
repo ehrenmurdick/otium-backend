@@ -1,24 +1,21 @@
 module HelloWorld where
 
 import Prelude (Unit
-               , (-)
-               , (*)
                , bind
                , (<>)
                )
 import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad (pure)
+import Data.Maybe ( Maybe(..) )
 
-foreign import data RESPONSE :: Effect
-foreign import data REQUEST :: Effect
-
-foreign import send :: forall eff. Int -> ResponseBody -> Eff (response :: RESPONSE | eff) Unit
-
-foreign import get :: forall eff a. String -> Eff (request :: REQUEST | eff) a
+import Gcf (RESPONSE
+           , REQUEST
+           , getRequestBody
+           , respondWithJson
+           )
 
 newtype ResponseBody = ResponseBody
-  { number :: Int
-  , message :: String
+  { message :: String
   }
 
 handle :: forall eff. Eff (response :: RESPONSE, request :: REQUEST | eff) Unit
@@ -27,17 +24,12 @@ handle = do
   succeed resp
 
 succeed :: forall eff. ResponseBody -> Eff (response :: RESPONSE | eff) Unit
-succeed body = send 200 body
+succeed body = respondWithJson 200 body
 
 makeResponseBody :: forall eff. Eff (request :: REQUEST | eff) ResponseBody
 makeResponseBody = do
-  name <- get "name"
-  number <- get "number"
-  pure (ResponseBody {message: msg name, number: factorial number})
+  name <- getRequestBody "name"
+  pure (ResponseBody {message: msg name})
     where
-      msg :: String -> String
-      msg name = "hello " <> name <> "!"
-
-factorial :: Int -> Int
-factorial 0 = 1
-factorial n = n * (factorial (n - 1))
+      msg (Just name) = "hello " <> name <> "!"
+      msg Nothing = "error, missing key: name"
