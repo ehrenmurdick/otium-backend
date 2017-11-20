@@ -1,5 +1,3 @@
-var HelloWorld = require('./output/HelloWorld');
-
 function mkHandleFun(m) {
   return function(req, res) {
     global.req = req;
@@ -9,3 +7,4 @@ function mkHandleFun(m) {
 }
 
 exports.helloWorld = mkHandleFun(require('./output/HelloWorld'));
+exports.factorial = mkHandleFun(require('./output/Factorial'));
