@@ -7,6 +7,7 @@ import Prelude (Unit
                , (<>)
                )
 import Control.Monad.Eff (Eff, kind Effect)
+import Control.Monad (pure)
 
 foreign import data RESPONSE :: Effect
 foreign import data REQUEST :: Effect
@@ -20,14 +21,22 @@ newtype ResponseBody = ResponseBody
   , message :: String
   }
 
-handle :: forall t4. Eff (response :: RESPONSE, request :: REQUEST | t4) Unit
+handle :: forall eff. Eff (response :: RESPONSE, request :: REQUEST | eff) Unit
 handle = do
+  resp <- makeResponseBody
+  succeed resp
+
+succeed :: forall eff. ResponseBody -> Eff (response :: RESPONSE | eff) Unit
+succeed body = send 200 body
+
+makeResponseBody :: forall eff. Eff (request :: REQUEST | eff) ResponseBody
+makeResponseBody = do
   name <- get "name"
   number <- get "number"
-  send 200 (ResponseBody {number: fs number, message: msg name})
+  pure (ResponseBody {message: msg name, number: factorial number})
     where
-      fs n  = factorial n
-      msg n = "hello " <> n <> "!"
+      msg :: String -> String
+      msg name = "hello " <> name <> "!"
 
 factorial :: Int -> Int
 factorial 0 = 1
