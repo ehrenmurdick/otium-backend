@@ -16,7 +16,7 @@ import Gcf (RESPONSE
            )
 
 data ResponseBody = Success { number :: Int }
-                  | Error { error :: String }
+                  | Error   { error :: String }
 
 handle :: Eff (request :: REQUEST, response :: RESPONSE) Unit
 handle = do
@@ -31,8 +31,8 @@ makeResponseBody = do
   number <- getRequestBody "number"
   pure (f number)
     where
-      f (Just n) = Success {number: factorial n}
-      f (Nothing) = Error {error: "missing key: number"}
+      f (Just n)  = Success {number: factorial n}
+      f (Nothing) = Error   {error: "missing key: number"}
 
 factorial :: Int -> Int
 factorial 0 = 1
