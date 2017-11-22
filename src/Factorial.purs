@@ -15,24 +15,25 @@ import Gcf (RESPONSE
            , respondWithJson
            )
 
-data ResponseBody = Success { number :: Int }
-                  | Error   { error :: String }
+data ResponseBody = Success Int
+                  | Error String
 
 handle :: Eff (request :: REQUEST, response :: RESPONSE) Unit
 handle = do
   resp <- makeResponseBody
-  succeed resp
+  encodeResponse resp
 
-succeed :: forall eff a. a -> Eff (response :: RESPONSE | eff) Unit
-succeed body = respondWithJson 200 body
+encodeResponse :: forall eff. ResponseBody -> Eff (response :: RESPONSE | eff) Unit
+encodeResponse (Success i) = respondWithJson 200 { number: i }
+encodeResponse (Error s)   = respondWithJson 200 { error: s }
 
 makeResponseBody :: forall eff. Eff (request :: REQUEST | eff) ResponseBody
 makeResponseBody = do
   number <- getRequestBody "number"
   pure (f number)
     where
-      f (Just n)  = Success {number: factorial n}
-      f (Nothing) = Error   {error: "missing key: number"}
+      f (Just n)  = Success (factorial n)
+      f (Nothing) = Error "missing key: number"
 
 factorial :: Int -> Int
 factorial 0 = 1
